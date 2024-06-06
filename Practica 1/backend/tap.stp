@@ -12,8 +12,8 @@ probe syscall.write {
     }
 }
 
-probe syscall.lseek {
-    if(pid() == $1 || pid() == $2){
+probe process("/lib/x86_64-linux-gnu/libc.so.6").function("open") {
+    if (pid() == $1 || pid() == $2) {
         printf("Proceso %d: open (%s)\n", pid(), ctime(gettimeofday_s()))
     }
 }

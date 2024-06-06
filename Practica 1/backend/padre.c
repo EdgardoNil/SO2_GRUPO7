@@ -71,7 +71,7 @@ int main() {
     if (pid1 == 0) {
         // Proceso hijo 1
         char *arg_Ptr[3];
-        arg_Ptr[0] = "./hijo.bin";
+        arg_Ptr[0] = "./hijo";
         arg_Ptr[1] = "1";
         arg_Ptr[2] = NULL;
         execv(arg_Ptr[0], arg_Ptr);
@@ -89,7 +89,7 @@ int main() {
     if (pid2 == 0) {
         // Proceso hijo 2
         char *arg_Ptr[3];
-        arg_Ptr[0] = "./hijo.bin";
+        arg_Ptr[0] = "./hijo";
         arg_Ptr[1] = "2";
         arg_Ptr[2] = NULL;
         execv(arg_Ptr[0], arg_Ptr);

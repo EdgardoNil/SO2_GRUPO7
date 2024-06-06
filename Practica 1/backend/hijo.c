@@ -44,13 +44,13 @@ void read_string(int fd, int child_pid) {
 }
 
 // Función para abrir el archivo
-int abrir_archivo(const char *filename, int child_pid) {
+void abrir_archivo(const char *filename, int child_pid) {
     int fd = open(filename, O_RDWR | O_CREAT, 0644);
     if (fd == -1) {
         perror("Error al abrir el archivo");
         exit(EXIT_FAILURE);
     }
-    return fd;
+    close(fd);
 }
 
 // Función para realizar una operación aleatoria (open, lectura o escritura)
