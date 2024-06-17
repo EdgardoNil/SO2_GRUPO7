@@ -6,7 +6,7 @@ ___
 - [**RESPONSABLES**](#responsables)
 - [**ACERCA DE**](#acerca-de)
 - [**CODIGO**](#codigo)
-- [**FLUJO DEL PROGRAMA**](#flujo-del-programa)
+- [**REPORTE DE DATOS**](#reporte-de-datos)
 
 ___
 ## **RESPONSABLES**
@@ -17,36 +17,91 @@ ___
 |2| Saúl Jafet Menchú Recinos | 201906444 |
 ___
 ## **ACERCA DE**
-En este proyecto se detalla la implementación y funcionamiento de un programa desarrollado en `C` para monitorear y registrar las llamadas al sistema realizadas por procesos hijos en un entorno Linux.
+En este proyecto se detalla la implementación y funcionamiento de un programa desarrollado en `C` que permita almacenar los datos de usuario de un banco, así como poder realizar operaciones monetarias como depósitos,
+retiros y transacciones. Todo este funcionamiento utilizando principalmente hilos.
 
 ___
 ## **CODIGO**
 A continuación se detalla parte del código y las funciones utlizadas dentro del mismo. Para está práctica todo el código fue realizado en lenguaje `C`.
-#### Padre
+#### Carga Masiva
 ```C
-void sigint_handler(int signum) {
-    printf("\nNúmero total de llamadas al sistema realizadas por los procesos hijo: %d\n", total_syscalls);
-    printf("Número de llamadas al sistema por tipo:\n");
-    printf("Read: %d\n", read_syscalls);
-    printf("Write: %d\n", write_syscalls);
-    printf("open: %d\n", open_syscalls);
-    exit(EXIT_SUCCESS);
+void cargaMasiva(){
+    pthread_t  thread1, thread2, thread3;
+
+    crear_binario();
+
+    pthread_create(&thread1, NULL, leer2, "1");
+    pthread_create(&thread2, NULL, leer2, "2");
+    pthread_create(&thread3, NULL, leer2, "3");
+
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
 }
 ```
-Esta función es un manejador para la señal SIGINT, que normalmente se envía al programa cuando el usuario presiona Ctrl+C en el teclado.
+Esta función permite carga los datos de usuario de forma masiva por medio de tres hilos paralelamente.
 
 ```C
-void limpiar_archivo_syscalls_log() {
-    FILE *file = fopen("syscalls.log", "w");
-    if (file == NULL) {
-        perror("Error al abrir el archivo syscalls.log");
-        exit(EXIT_FAILURE);
+cJSON *count = cJSON_GetObjectItemCaseSensitive(item, "no_cuenta");
+cJSON *name = cJSON_GetObjectItemCaseSensitive(item, "nombre");
+cJSON *balance = cJSON_GetObjectItemCaseSensitive(item, "saldo");
+
+if (cJSON_IsNumber(count) && cJSON_IsString(name) && cJSON_IsNumber(balance)) {
+    
+    if((existe("binario.bina", count->valueint))==1){
+        u.no_cuenta=count->valueint;
+        strncpy(u.nombre, name->valuestring, sizeof(u.nombre) - 1);
+        u.nombre[sizeof(u.nombre) - 1] = '\0';
+        u.saldo=balance->valuedouble;
+        if(u.saldo<0){
+            escribir_errores(2,actual);
+            continue;
+        }
+        archivo_binario = fopen("binario.bina","rb+");
+        fseek(archivo_binario,0+(36*(actual-1)),SEEK_SET);
+        fwrite(&u,sizeof(u),1,archivo_binario);
+        fclose(archivo_binario);
     }
-    fclose(file);
 }
 ```
-Función para limpiar el archivo syscalls.log y, si no existe, crearlo
->Nota: se usó una función similar para asegurar que el archivo syscalls.log existe.
+En esta explica la lectura y almacenamiento de registro desde un archivo JSON a uno binario.
+
+<p align="center">
+  <img src="img/json.png" alt="Imagen">
+</p>
+
+#### Operaciones individuales
+```C
+void modificarBinario(char opc, int retiro, int deposito, float saldo) {
+    FILE *archivo_binario = fopen("binario.bina", "rb+");
+    if (archivo_binario == NULL) {
+        perror("Unable to open binary file");
+        return;
+    }
+    user u;
+    int cuenta1=0;int cuenta2=0;
+    int saldo_cuenta1=0; int saldo_cuenta2=0;
+    int cont = 0;
+    while (fread(&u, sizeof(user), 1, archivo_binario)) {
+        if (u.no_cuenta == retiro) {
+            if (opc == '1') { // DEPOSITO
+                printf("Saldo %.2f + %.2f\n", u.saldo, saldo);
+                u.saldo = u.saldo + saldo;
+                printf("Nuevo saldo %.2f\n", u.saldo);
+                fseek(archivo_binario, -sizeof(user), SEEK_CUR);
+                fwrite(&u, sizeof(user), 1, archivo_binario);
+                break;
+            }
+        }
+       
+    }
+    fclose(archivo_binario);
+
+}
+```
+Para el desarrollo de esta practica y el almacenamiento de los usuarios se utilizo un archivo binarios para almacenar cada registro del json, antes de almacenarlo en el binario se guardo en struct. Por lo tanto esta función muestra parcialmente la lectura del archivo binario y la busqueda de determinado registro para su posterior monejo de informació
+
+>Nota: Se menciona parcilamente ya que esta función puede relizar cuatro distintas operaciones.
 
 ```C
 int main{
@@ -73,58 +128,90 @@ int main{
 ```
 Y dentro de la funcion main se encuentran las llamadas a las funciones anteriormente explicadas y otros procesos como: la lectura del archivo syscalls.log y la actualización de los contadores, creación de procesos hijos, ejecuación del script SystemTap para monitorear llamadas al sistema y la espera para que los procesos hijos terminen.
 
-#### Hijo
+#### Otras operaciones
 ```C
-void write_random_string(int fd, int child_pid) {
-    char buffer[9];
-    for (int i = 0; i < 8; i++) {
-        buffer[i] = random_char();
+void leerArchivoBinario(int des, int cuenta) {
+    FILE *archivo_binario = fopen("binario.bina", "rb");
+    
+    if(des==1){
+        while (fread(&u, sizeof(user), 1, archivo_binario)) {
+            if(u.no_cuenta==cuenta){
+                printf("-----------------------\n");
+                printf("Cuenta: %d\n", u.no_cuenta);
+                printf("Nombre: %s\n", u.nombre);
+                printf("Saldo: %.2f\n", u.saldo);
+                printf("-----------------------\n");
+            }        
+        }
     }
-    buffer[8] = '\n';
-    write(fd, buffer, 9);
+    fclose(archivo_binario);
 }
 ```
-Está funcion realiza la escritura aleatoria para el archivo.
+Otras de la operaciones manejas está la lectura de determinado registro brindado por el usuario. Esta función hace una búsqueda en el archivo binario anteriormente descrito, una vez encontrado el registro lo imprimer en pantalla junto con toda su información. De no encontrarse, el programa no muestra nada y continua con su ejecución.
+
+
+#### **Carga Masiva de Operaciones**
 
 ```C
-int main() {
-    int fd = open(FILENAME, O_RDWR | O_CREAT, 0644);
-    if (fd == -1) {
-        perror("Error al abrir el archivo");
-        exit(EXIT_FAILURE);
-    }
-    limpiar_archivo(FILENAME);
-    int child_pid = getpid();
-    printf("Proceso hijo con PID: %d\n", child_pid);
-    ...
-    ...
-    ...
+void cargaMasivaOp(){
+
+    cantidad_tran();
+    pthread_mutex_init(&lock, NULL);
+    pthread_t  thread1, thread2, thread3, thread4;
+
+    pthread_create(&thread1, NULL, leerTransacciones, "1");
+    pthread_create(&thread2, NULL, leerTransacciones, "2");
+    pthread_create(&thread3, NULL, leerTransacciones, "3");
+    pthread_create(&thread4, NULL, leerTransacciones, "4");
+
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
+    pthread_join(thread4, NULL);
+    
+    pthread_mutex_destroy(&lock);
 }
 ```
-Y dentro del main se hacen las llamadas a las demás funciones.
+Ejecución de cuatro hilos de manera concurrente usando mutex.
 
-___
+> Nota: Para la lectura de las transacciones se realizó de la misma manera que la lectura de usaurio a diferencia que en esta ocasión no se guardó ni un registro, si no se fueron ejecutando en el mismo momento. Para la ejecuación de cada operacion se realizó de la misma manera para las operaciones individuales.
 
-## **FLUJO DEL PROGRAMA**
-A continuación se detalla el flujo del programa:
+#### Otras funciones
+```C
+void obtener_fecha_hora(char *buffer, size_t buffer_size) {
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    strftime(buffer, buffer_size, "carga_%Y_%m_%d-%H_%M_%S.log", &tm);
+}
 
-1. Se ejcutan los scripts del `hijo.c` y del `padre.c`.
+void obtener_fecha_hora_formato(char *buffer, size_t buffer_size) {
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    strftime(buffer, buffer_size, "Fecha: %Y-%m-%d %H:%M:%S", &tm);
+}
+
+void limpiarBufferEntrada() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+```
+Estas funciones son para la obtencia de la fecha actual, el formato para el nomrbre del archivo y limpieza del buffer de entrada para la elección en el menú.
+
+## REPORTE DE DATOS
+
+Reporte para la carga de usuarios
 <p align="center">
-  <img src="img/ejecutar.png" alt="Imagen">
+  <img src="img/reporte1.png" alt="Imagen">
 </p>
 
-2. Se espera a la creación, lectura y escritura en los archivos correspondiente.
+Reporte para las operaciones realizadas
 <p align="center">
-  <img src="img/espera.png" alt="Imagen">
+  <img src="img/reporte2.png" alt="Imagen">
 </p>
 
-3. Se detiene la ejecuación al esperar un tiempo determinado.
+Reporte para las cuentas de usuarios
 <p align="center">
-  <img src="img/detener.png" alt="Imagen">
+  <img src="img/reporte3.png" alt="Imagen">
 </p>
 
-4. Se revisan los archivo para comprobar la correcta ejecución del programa.
-<p align="center">
-  <img src="img/revision.png" alt="Imagen">
-</p>
-___
+____
