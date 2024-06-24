@@ -46,7 +46,7 @@ def obtener_datos_grafica():
         data = []
         totalOtros = 0
         totalUso = 0
-        memoriaTotal = 4064878592 
+        memoriaTotal = 8589934592 
 
         for i, row in enumerate(rows):
             data.append({
@@ -111,13 +111,13 @@ def obtener_datos():
     except Exception as e:
         return str(e)
 
-# Función para obtener los últimos 15 datos de la base de datos
+# Función para obtener los últimos 100 datos de la base de datos
 def obtener_ultimos_datos():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
 
-        query = "SELECT * FROM (SELECT * FROM solicitud ORDER BY id DESC LIMIT 15) AS ultimos ORDER BY id ASC"
+        query = "SELECT * FROM (SELECT * FROM solicitud ORDER BY id DESC LIMIT 100) AS ultimos ORDER BY id ASC"
 
         cursor.execute(query)
 
