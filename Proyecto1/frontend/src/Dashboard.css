@@ -1,0 +1,96 @@
+/* Estilos generales */
+.dashboard-container {
+  font-family: Arial, sans-serif;
+  background-color: #ffffff; /* Fondo blanco */
+  color: #000000; /* Texto negro */
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.tables-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.table-wrapper {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.data-table, .memory-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.data-table th, .data-table td, .memory-data-table th, .memory-data-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+}
+
+.memory-bar {
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.memory-bar-fill {
+  background-color: #4CAF50;
+  height: 10px;
+}
+
+.dashboard-content {
+  display: flex;
+  width: 100%;
+  max-height: 80vh;
+}
+
+.chart-container {
+  flex: 1;
+}
+
+.table-container, .table-container-two {
+  width: 50%;
+  overflow-y: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+/* Estilos de la barra de navegación */
+.navbar {
+  background-color: #ffffff; /* Fondo blanco */
+  color: #000000; /* Texto negro */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+.navbar-brand {
+  color: #000000; /* Texto negro */
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-brand img {
+  margin-right: 10px;
+}
+
+.container-fluid {
+  height: 50px;
+}

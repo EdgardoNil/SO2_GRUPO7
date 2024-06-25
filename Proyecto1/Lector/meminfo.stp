@@ -1,0 +1,17 @@
+#!/usr/bin/stap
+
+probe syscall.mmap2 {
+    printf("PID del proceso: %d\n", pid())
+    printf("Nombre del proceso: %s\n", execname())
+    printf("Llamada: mmap2()\n")
+    printf("Tamaño del segmento de memoria solicitado: %lu\n", length)
+    printf("Fecha y hora de la solicitud: %s\n", ctime(gettimeofday_s()))
+}
+
+probe syscall.munmap {
+    printf("PID del proceso: %d\n", pid())
+    printf("Nombre del proceso: %s\n", execname())
+    printf("Llamada: munmap()\n")
+    printf("Tamaño del segmento de memoria liberado: %lu\n", length)
+    printf("Fecha y hora de la solicitud: %s\n", ctime(gettimeofday_s()))
+}
