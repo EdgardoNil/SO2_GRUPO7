@@ -9,7 +9,7 @@ const PieChartAndTable = () => {
   const [chartCPU, setChartCPU] = useState(null);
   const [ultimaData, setUltimaData] = useState([]);
 
-  const memoriaTotal = 4064878592;
+  const memoriaTotal = 85899345920;
 
   const fetchData = async () => {
     try {
