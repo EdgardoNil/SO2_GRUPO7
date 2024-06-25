@@ -46,7 +46,7 @@ def obtener_datos_grafica():
         data = []
         totalOtros = 0
         totalUso = 0
-        memoriaTotal = 8589934592 
+        memoriaTotal = 85899345920 
 
         for i, row in enumerate(rows):
             data.append({
