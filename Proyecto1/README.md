@@ -184,12 +184,12 @@ Tabla de utilización de la memoria por procesos
 
 Tabla de solicitudes
 <p align="center">
-  <img src="img/solicitudes.jpeg" alt="Imagen">
+  <img src="img/grafica.jpeg" alt="Imagen">
 </p>
 
 Grafica de procesos y porcentajes
 <p align="center">
-  <img src="img/grafica.jpeg" alt="Imagen">
+  <img src="img/solicitudes.jpeg" alt="Imagen">
 </p>
 
 
