@@ -173,6 +173,34 @@ Y por último la obtención de los últioms datos
     ))}
 ```
 
+## BASE DE DATOS
+A continuación se detalla el uso e implementación de la base de datos utlizada así como los servicios que usaron para la misma.
+
+Script de la base de datos para almacenar la informacion de cada procesos
+```SQL
+CREATE DATABASE Memoria;
+USE Memoria;
+
+CREATE TABLE IF NOT EXISTS solicitud (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pid INT,
+    proceso VARCHAR(256),
+    llamada VARCHAR(256),
+    tamano float,
+    fecha_hora VARCHAR(20),
+    porcentaje float
+);
+```
+
+#### Docker
+Para el uso de la base de datos con mysql, se utlizó docker para bajar una imagen y por levantarlo en un contenedor y de esta forma porder usar nuestra base de datos sin necesidad de un DBMS por el consumo dentro de la maquina virtual.
+
+```bash
+    docker pull mysql/mysql-server:latest
+
+    docker run --name mysql-db -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=SO2P1$ mysql
+```
+
 
 ## DASHBOARD
 A continuación se muestra un ejemplo de la obtención de datos y las vista por medio del dashboard
